@@ -18,6 +18,23 @@ from .text import COMB_BREVE, atone, deramise, key, strip_homonym
 DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 
 
+def read_lines(fname: str):
+    """Yield the lines of a data file. Large files are stored as numbered parts
+    (lemmes.part01.la, lemmes.part02.la, ...) under 256 KiB each, so every file
+    in the plugin stays small and plain-text readable; they are read in order."""
+    path = os.path.join(DATA, fname)
+    if os.path.exists(path):
+        paths = [path]
+    else:
+        base, ext = os.path.splitext(fname)
+        prefix = base + ".part"
+        paths = [os.path.join(DATA, f) for f in sorted(os.listdir(DATA))
+                 if f.startswith(prefix) and f.endswith(ext)]
+    for p in paths:
+        with open(p, encoding="utf-8") as f:
+            yield from f
+
+
 # --------------------------------------------------------------------------
 # Models
 # --------------------------------------------------------------------------
@@ -279,8 +296,8 @@ class Lexicon:
 
     # ---------------- loading
     def _load_lemmas(self, fname: str, ext: bool):
-        with open(os.path.join(DATA, fname), encoding="utf-8") as f:
-            for raw in f:
+        if True:
+            for raw in read_lines(fname):
                 line = raw.strip()
                 if not line or line.startswith("!"):
                     continue
@@ -319,11 +336,8 @@ class Lexicon:
                 self.by_key[k].append(lem.lid)
 
     def _load_glosses(self, fname: str, override: bool = False):
-        p = os.path.join(DATA, fname)
-        if not os.path.exists(p):
-            return
-        with open(p, encoding="utf-8") as f:
-            for raw in f:
+        if True:
+            for raw in read_lines(fname):
                 line = raw.rstrip("\n")
                 if not line or line.startswith("!") or ":" not in line:
                     continue
