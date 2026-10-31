@@ -1,0 +1,215 @@
+{
+  "name": "Latin morphology (latin-morph API)",
+  "nodes": [
+    {
+      "id": "7bed33cb-4700-4386-99e0-4b385ed8387b",
+      "name": "Webhook GET /latin",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "ebc88c4f-c561-44db-b849-23288aefc600",
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "latin",
+        "responseMode": "responseNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "b3de8b42-07b9-47a3-827a-41d906c167af",
+      "name": "latin-morph lookup",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "url": "http://latin-morph:8000/v1/lookup",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.query.q }}"
+            },
+            {
+              "name": "format",
+              "value": "md"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text",
+              "outputPropertyName": "markdown"
+            }
+          },
+          "timeout": 15000
+        }
+      }
+    },
+    {
+      "id": "ddba8bec-48f8-44ad-a938-1dc68d70e832",
+      "name": "Respond (markdown)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.markdown }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/markdown; charset=utf-8"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": "483d2bb2-8bab-41d6-9f8a-f66ddf0972b8",
+      "name": "When called by another workflow (tool)",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        260
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "8a795fc9-25fe-4e56-b67d-0357706cd1e7",
+      "name": "latin-morph lookup (tool)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        260
+      ],
+      "parameters": {
+        "url": "http://latin-morph:8000/v1/lookup",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.word || $json.query || $json.q }}"
+            },
+            {
+              "name": "format",
+              "value": "md"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text",
+              "outputPropertyName": "markdown"
+            }
+          },
+          "timeout": 15000
+        }
+      }
+    },
+    {
+      "id": "de2fc70b-4cf9-454d-9ab8-4f7eab0c193e",
+      "name": "Return markdown",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        260
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e13a2337-b316-48ba-bc51-9acf1272f133",
+              "name": "response",
+              "value": "={{ $json.markdown }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "8d8356d8-1aef-4207-b894-11c19f70db09",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -220
+      ],
+      "parameters": {
+        "width": 720,
+        "height": 180,
+        "content": "## latin-morph\n**Top:** public webhook — `GET /webhook/latin?q=amavisset` → Markdown tables.\n**Bottom:** sub-workflow for the WhatsApp AI assistant — add a *Call n8n Workflow Tool* in the agent pointing here, input field `word`.\nAPI base URL: `http://latin-morph:8000` (same Docker network) — change to your public domain if n8n runs elsewhere."
+      }
+    }
+  ],
+  "connections": {
+    "Webhook GET /latin": {
+      "main": [
+        [
+          {
+            "node": "latin-morph lookup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "latin-morph lookup": {
+      "main": [
+        [
+          {
+            "node": "Respond (markdown)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When called by another workflow (tool)": {
+      "main": [
+        [
+          {
+            "node": "latin-morph lookup (tool)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "latin-morph lookup (tool)": {
+      "main": [
+        [
+          {
+            "node": "Return markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

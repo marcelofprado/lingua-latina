@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>latin-morph — Latin paradigms, conjugations & declensions</title>
+<style>
+  :root { --ink:#1d1d1f; --mute:#6e6e73; --line:#e3e3e8; --bg:#fbfbfd; --acc:#8a1c1c; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.45 -apple-system, "Segoe UI", Roboto, sans-serif; color:var(--ink); background:var(--bg); }
+  main { max-width: 1100px; margin: 0 auto; padding: 28px 18px 60px; }
+  h1 { font: 600 26px/1.2 Georgia, serif; margin: 0 0 4px; }
+  h1 span { color: var(--acc); }
+  .sub { color: var(--mute); margin: 0 0 20px; }
+  form { display:flex; gap:8px; flex-wrap:wrap; margin-bottom: 18px; }
+  input[type=text] { flex:1 1 260px; font-size:18px; padding:10px 12px; border:1px solid var(--line); border-radius:8px; }
+  button { font-size:16px; padding:10px 18px; border:0; border-radius:8px; background:var(--acc); color:#fff; cursor:pointer; }
+  label { color:var(--mute); font-size:13px; display:flex; align-items:center; gap:4px; }
+  .head { font: 600 21px Georgia, serif; margin: 26px 0 2px; }
+  .meta { color: var(--mute); margin-bottom: 10px; }
+  .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 14px; }
+  .wide { grid-column: 1 / -1; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px 12px; overflow-x:auto; }
+  .card h3 { margin:0 0 6px; font-size:13px; letter-spacing:.04em; text-transform:uppercase; color:var(--acc); }
+  table { border-collapse: collapse; width:100%; font-size:14px; }
+  th, td { text-align:left; padding:4px 8px; border-bottom:1px solid var(--line); vertical-align: top; }
+  th { color: var(--mute); font-weight:500; font-size:12px; }
+  td:first-child { color: var(--mute); white-space: nowrap; }
+  .ana td:first-child { color: var(--ink); font-weight:600; }
+  .err { color: var(--acc); }
+  footer { margin-top: 40px; color: var(--mute); font-size: 12px; }
+  a { color: var(--acc); }
+</style>
+</head>
+<body>
+<main>
+  <h1>latin<span>·</span>morph</h1>
+  <p class="sub">Paradigms, conjugations and declensions for ~82,000 Latin lemmata. Type a dictionary form or any inflected form.</p>
+  <form id="f">
+    <input id="q" type="text" placeholder="amō · amāvisset · laudātī essent · rēgibus · populusque" autofocus autocomplete="off" autocapitalize="off" spellcheck="false">
+    <button>Inflect</button>
+    <label><input id="full" type="checkbox"> full participles / degrees</label>
+    <label><input id="all" type="checkbox"> all homonyms</label>
+  </form>
+  <div id="out"></div>
+  <footer>
+    API: <a href="/docs">/docs</a> · MCP endpoint: <code>/mcp</code> ·
+    Data: <a href="https://github.com/biblissima/collatinus">Collatinus</a> (Y. Ouvrard, Ph. Verkerk), GPL-3.0.
+  </footer>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function table(sec, cls) {
+  const wide = sec.columns.length > 4 ? ' wide' : '';
+  let h = `<div class="card${wide} ${cls||''}"><h3>${esc(sec.title)}</h3><table><tr>` +
+    sec.columns.map(c => `<th>${esc(c)}</th>`).join('') + '</tr>';
+  for (const r of sec.rows) h += '<tr>' + r.map(x => `<td>${esc(x)}</td>`).join('') + '</tr>';
+  return h + '</table></div>';
+}
+function render(d) {
+  if (d.error) return `<p class="err">${esc(d.error)}</p>`;
+  let h = '';
+  const ana = (d.analyses || []).concat(...(d.words || []).map(w => w.analyses || []));
+  const isHead = (d.paradigms || []).some(p => p.key.replace(/\d+$/, '') === d.input.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/j/g,'i').replace(/v/g,'u'));
+  if (ana.length && !isHead) {
+    const rows = [];
+    for (const g of ana) for (const f of g.forms)
+      rows.push([f.form, g.lemma, g.pos, f.morphology + (f.enclitic ? ' + ' + f.enclitic : '') + (f.note ? ' (' + f.note + ')' : '')]);
+    h += `<div class="grid">${table({title:'Analysis', columns:['Form','Lemma','POS','Morphology'], rows}, 'ana wide')}</div>`;
+  }
+  for (const p of d.paradigms || []) {
+    h += `<div class="head">${esc(p.principal_parts || p.lemma)}</div>
+          <div class="meta">${esc(p.pos)}${p.class ? ' · ' + esc(p.class) : ''}${p.gloss ? ' — ' + esc(p.gloss) : ''}</div>`;
+    if (p.note) h += `<div class="meta">${esc(p.note)}</div>`;
+    h += '<div class="grid">' + p.sections.map(s => table(s)).join('') + '</div>';
+  }
+  if ((d.candidates || []).length)
+    h += '<p class="meta">Also: ' + d.candidates.map(c => `<a href="#${encodeURIComponent(c.key)}">${esc(c.lemma)}</a> (${esc(c.pos)})`).join('; ') + '</p>';
+  return h;
+}
+async function go(q) {
+  if (!q) return;
+  $('#out').innerHTML = '<p class="meta">…</p>';
+  const u = `/v1/lookup?q=${encodeURIComponent(q)}${$('#full').checked ? '&full=1' : ''}${$('#all').checked ? '&all=1' : ''}`;
+  try {
+    const r = await fetch(u); const d = await r.json();
+    $('#out').innerHTML = r.ok ? render(d) : `<p class="err">${esc(d.detail || d.error || r.status)}</p>`;
+  } catch (e) { $('#out').innerHTML = `<p class="err">${esc(e)}</p>`; }
+}
+$('#f').addEventListener('submit', e => { e.preventDefault(); location.hash = encodeURIComponent($('#q').value.trim()); });
+window.addEventListener('hashchange', () => { const q = decodeURIComponent(location.hash.slice(1)); $('#q').value = q; go(q); });
+if (location.hash) { const q = decodeURIComponent(location.hash.slice(1)); $('#q').value = q; go(q); }
+</script>
+</body>
+</html>
