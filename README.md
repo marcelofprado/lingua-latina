@@ -4,18 +4,36 @@ Latin paradigms, conjugations and declensions for **~82,000 lemmata** — the lo
 [cactus2000](https://www.cactus2000.de) (type a word, get every form in tables), with vowel
 quantities and reverse analysis of inflected forms.
 
-Three ways to use it:
+## Install
+
+**Claude (web, desktop, mobile, Cowork):** add *Lingua Latina* from the Claude directory
+(once listed), or download `latin-morphology-skill.zip` from the
+[latest release](https://github.com/marcelofprado/lingua-latina/releases) and upload it in
+**Customize → Skills**.
+
+**Claude Code:**
+
+```
+/plugin install lingua-latina --marketplace marcelofprado/lingua-latina
+```
+
+(older versions: `/plugin marketplace add marcelofprado/lingua-latina` then
+`/plugin install lingua-latina@lingua-latina`).
+
+Then just ask: *"conjugate fero"*, *"decline ācer"*, *"what form is amāvisset?"*.
+
+## Ways to use it
 
 | | What | Where |
 |---|---|---|
-| **Claude Skill** | `skill/latin-morphology/` — self-contained (engine + data), no server | upload the `.zip` in Claude → Settings → Capabilities → Skills |
+| **Claude plugin / skill** | `skills/latin-morphology/` — self-contained (engine + data), no server | directory, marketplace or `.zip` (above) |
 | **REST API + web UI** | FastAPI app, `GET /v1/lookup?q=…` | Docker, `deploy/` |
 | **MCP server** | streamable HTTP at `/mcp` (tools `latin_lookup`, `latin_analyze`, `latin_paradigm`) | same container; add `https://<host>/mcp` as a custom connector |
 
 ## What it does
 
 ```
-$ python3 -m latin_morph amavisset
+$ python3 skills/latin-morphology/scripts/latin.py amavisset
 | Form      | Lemma | Meaning         | Analysis                 |
 | amāvisset | amō   | verb — to love  | plupf. subj. act. 3 sg.  |
 
@@ -41,8 +59,13 @@ Participles | Gerund & supine
 
 ```bash
 git clone https://github.com/marcelofprado/lingua-latina && cd lingua-latina
-./build_skill.sh          # builds dist/latin-morphology-skill.zip (upload it to Claude)
+./build_skill.sh          # builds dist/latin-morphology-skill.zip
+cd skills/latin-morphology/scripts
+python3 -m latin_morph amavisset
 ```
+
+The engine lives in `skills/latin-morphology/scripts/latin_morph/` (single copy, used by the
+skill, the CLI, the server and the tests).
 
 
 ```bash

@@ -8,7 +8,7 @@ DOMAIN=${DOMAIN:-}
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TAR=/tmp/latin-morph.tgz
 tar -C "$ROOT" --exclude='.git' --exclude='__pycache__' --exclude='dist' -czf "$TAR" \
-    Dockerfile .dockerignore requirements-server.txt latin_morph server deploy
+    Dockerfile .dockerignore requirements-server.txt skills server deploy
 scp $KEY_OPT "$TAR" "$HOST:/tmp/latin-morph.tgz"
 ssh $KEY_OPT "$HOST" bash -s -- "$DOMAIN" <<'REMOTE'
 set -euo pipefail

@@ -1,0 +1,12 @@
+{
+  "name": "lingua-latina",
+  "description": "Latin morphology for Claude",
+  "owner": { "name": "Marcelo Prado", "url": "https://github.com/marcelofprado" },
+  "plugins": [
+    {
+      "name": "lingua-latina",
+      "source": "./",
+      "description": "Latin conjugation and declension tables, principal parts and parsing of inflected forms."
+    }
+  ]
+}

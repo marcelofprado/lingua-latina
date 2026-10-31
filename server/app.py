@@ -23,7 +23,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "skills", "latin-morphology", "scripts"))
 from latin_morph import __version__  # noqa: E402
 from latin_morph.api import analyze as _analyze  # noqa: E402
 from latin_morph.api import lookup as _lookup  # noqa: E402

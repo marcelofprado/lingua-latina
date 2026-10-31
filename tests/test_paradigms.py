@@ -3,7 +3,7 @@ Wheelock). Run: python3 tests/test_paradigms.py"""
 import os
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "skills", "latin-morphology", "scripts"))
 
 from latin_morph.analyze import Analyzer          # noqa: E402
 from latin_morph.lexicon import get_lexicon       # noqa: E402

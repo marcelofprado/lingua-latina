@@ -3,7 +3,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 LATIN_MORPH_CACHE=/app/.cache
 WORKDIR /app
 COPY requirements-server.txt .
 RUN pip install --no-cache-dir -r requirements-server.txt
-COPY latin_morph ./latin_morph
+COPY skills/latin-morphology/scripts/latin_morph ./latin_morph
 COPY server ./server
 # pre-build the lexicon cache so the container starts warm
 RUN python -c "from latin_morph.lexicon import get_lexicon; print(len(get_lexicon().lemmas), 'lemmata')"
