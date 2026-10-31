@@ -1,11 +1,23 @@
 {
   "name": "lingua-latina",
   "displayName": "Lingua Latina — Latin paradigms",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Latin conjugation and declension tables with vowel quantities, principal parts and parsing of inflected forms (cactus2000-style), for ~82,000 lemmata from the Collatinus lexicon.",
-  "author": { "name": "Marcelo Prado", "url": "https://github.com/marcelofprado" },
+  "author": {
+    "name": "Marcelo Prado",
+    "url": "https://github.com/marcelofprado"
+  },
   "homepage": "https://github.com/marcelofprado/lingua-latina",
   "repository": "https://github.com/marcelofprado/lingua-latina",
   "license": "GPL-3.0-or-later",
-  "keywords": ["latin", "grammar", "conjugation", "declension", "morphology", "classics", "education"]
+  "keywords": [
+    "latin",
+    "grammar",
+    "conjugation",
+    "declension",
+    "morphology",
+    "classics",
+    "education"
+  ],
+  "icon": "./.claude-plugin/icon.png"
 }

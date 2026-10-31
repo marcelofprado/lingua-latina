@@ -8,9 +8,7 @@ Data files (GPL, © Yves Ouvrard / Philippe Verkerk, Collatinus project):
 """
 from __future__ import annotations
 
-import gzip
 import os
-import pickle
 import re
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -18,7 +16,6 @@ from dataclasses import dataclass, field
 from .text import COMB_BREVE, atone, deramise, key, strip_homonym
 
 DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
-CACHE_VERSION = 4
 
 
 # --------------------------------------------------------------------------
@@ -443,31 +440,9 @@ class Lexicon:
 _LEX: Lexicon | None = None
 
 
-def _cache_path() -> str:
-    base = os.environ.get("LATIN_MORPH_CACHE") or os.path.join(
-        os.path.expanduser("~"), ".cache", "latin_morph")
-    return os.path.join(base, f"lexicon-v{CACHE_VERSION}.pkl.gz")
-
-
 def get_lexicon() -> Lexicon:
-    """Load (and cache) the lexicon."""
+    """Load the lexicon once per process (about 2 s; kept in memory)."""
     global _LEX
-    if _LEX is not None:
-        return _LEX
-    path = _cache_path()
-    src_mtime = max(os.path.getmtime(os.path.join(DATA, f)) for f in os.listdir(DATA))
-    if os.path.exists(path) and os.path.getmtime(path) >= src_mtime:
-        try:
-            with gzip.open(path, "rb") as f:
-                _LEX = pickle.load(f)
-                return _LEX
-        except Exception:
-            pass
-    _LEX = Lexicon()
-    try:
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        with gzip.open(path, "wb", compresslevel=1) as f:
-            pickle.dump(_LEX, f, protocol=pickle.HIGHEST_PROTOCOL)
-    except Exception:
-        pass
+    if _LEX is None:
+        _LEX = Lexicon()
     return _LEX

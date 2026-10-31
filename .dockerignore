@@ -1,9 +1,0 @@
-.git
-**/__pycache__
-dist
-skills/*/SKILL.md
-.claude-plugin
-tests
-n8n
-deploy
-*.zip
