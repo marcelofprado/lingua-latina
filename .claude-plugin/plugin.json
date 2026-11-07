@@ -1,7 +1,7 @@
 {
   "name": "lingua-latina",
   "displayName": "Lingua Latina — Latin paradigms",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Latin conjugation and declension tables with vowel quantities, principal parts and parsing of inflected forms (cactus2000-style), for ~82,000 lemmata from the Collatinus lexicon.",
   "author": {
     "name": "Marcelo Prado",
