@@ -1,4 +1,10 @@
+FROM public.ecr.aws/awsguru/aws-lambda-adapter:0.9.1 AS lambda-adapter
+
 FROM python:3.12-slim
+# AWS Lambda Web Adapter: lets this same image run on Lambda (it is an extension,
+# inert outside Lambda). It waits for /health, then forwards invocations to uvicorn.
+COPY --from=lambda-adapter /lambda-adapter /opt/extensions/lambda-adapter
+ENV AWS_LWA_PORT=8000 AWS_LWA_READINESS_CHECK_PATH=/health
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 LATIN_MORPH_CACHE=/app/.cache
 WORKDIR /app
 COPY requirements-server.txt .
