@@ -10,8 +10,6 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-os.environ.setdefault("LATIN_MORPH_CACHE", os.path.join(
-    os.environ.get("TMPDIR", "/tmp"), "latin_morph_cache"))
 
 from latin_morph.cli import main  # noqa: E402
 

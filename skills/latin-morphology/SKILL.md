@@ -67,10 +67,4 @@ input are optional.
   semi-deponents (audeō, gaudeō, fīō) show perfect-system forms with *sum*.
 - Glosses are short English dictionary glosses from Collatinus.
 
-## Optional: hosted API / MCP
-
-The same engine is served as a REST API and an MCP server (see the project README):
-`GET https://<host>/v1/lookup?q=amavisset&format=md` returns the same Markdown.
-If the environment cannot run Python but has network access, call that endpoint instead.
-
 Data: Collatinus (Yves Ouvrard & Philippe Verkerk), GPL-3.0. Engine: GPL-3.0.
