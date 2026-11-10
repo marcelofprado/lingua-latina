@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "lingua-latina": {
+      "type": "http",
+      "url": "https://latin.diodorus.com.br/mcp"
+    }
+  }
+}
